@@ -9,6 +9,36 @@ ALLOWED_ORIGINS = {
     "http://localhost:5174",
 }
 
+genres = {
+    "Action": 0,
+    "Adventure": 0,
+    "Animation": 0,
+    "Biography": 0,
+    "Comedy": 0,
+    "Crime": 0,
+    "Documentary": 0,
+    "Drama": 0,
+    "Family": 0,
+    "Fantasy": 0,
+    "Film-Noir": 0,
+    "Game-Show": 0,
+    "History": 0,
+    "Horror": 0,
+    "Music": 0,
+    "Musical": 0,
+    "Mystery": 0,
+    "News": 0,
+    "Reality-TV": 0,
+    "Romance": 0,
+    "Sci-Fi": 0,
+    "Short": 0,
+    "Sport": 0,
+    "Talk-Show": 0,
+    "Thriller": 0,
+    "War": 0,
+    "Western": 0
+}
+
 @app.after_request
 def add_cors_headers(response):
     origin = request.headers.get("Origin")
@@ -27,10 +57,30 @@ def recommend():
     data = request.get_json(silent=True) or {}
 
     selected_movies = data.get("selectedMovies", [])
-    titles = [movie["Title"] for movie in selected_movies]
+    genre = [movie["Genre"] for movie in selected_movies]
 
-    print("TITLES:", titles)
-    return jsonify({"titles": titles})
+
+    for g in genre:
+        for item in g.split(", "):
+            if item in genres:
+                genres[item] += 1
+
+
+    vector = []
+    #print(selected_movies)
+    if len(genre) > 0:
+        for value in genres.values():
+            vector.append(value / len(genre))
+    else:
+        for value in genres.values():
+            vector.append(0)
+
+    print(vector)
+    return jsonify({"Genre": genre})
+
+
+   
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5001, debug=True)
+    
